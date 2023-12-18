@@ -9,7 +9,7 @@ URL = 'https://s3.amazonaws.com/capitalbikeshare-data/index.html'
 
 def requester(url):
     response = requests.get(url)
-    print(response)
+    return response
 
 def main():
     requester(URL)
