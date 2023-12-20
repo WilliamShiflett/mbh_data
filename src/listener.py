@@ -16,10 +16,6 @@ import hashlib
 import requests
 from http import HTTPStatus
 from selenium import webdriver 
-from webdriver_manager.chrome import ChromeDriverManager 
-
-
-
 
 URL = 'https://s3.amazonaws.com/capitalbikeshare-data/index.html'
 
@@ -31,16 +27,11 @@ def texter(url_response):
     url_text = url_response.text
     return url_text
 
-#above won't work due to page not rendering
-    
-# try visiting with selenium
-
-def visitor(url: str):
-    driver = webdriver.Chrome(ChromeDriverManager().install()) 
+def visiter(url: str):
+    driver = webdriver.Chrome() 
     driver.get(url)
     page = driver.page_source.encode('utf-8') 
-    print(page)
-
+    return page
 
     
 def main():
