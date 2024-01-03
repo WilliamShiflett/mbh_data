@@ -17,12 +17,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 MAIN_URL = 'https://s3.amazonaws.com/capitalbikeshare-data/index.html'
 RETRY_COUNT = 5
+ZIP_URL_LIST = []
 
 def page_crawler(url: str) -> list:
     '''
     1.Visits url
     2.Waits for href elements to render
     3.Finds all href elements
+    4.Returns URLs in href elements
     '''
 
     driver = webdriver.Chrome() 
@@ -47,8 +49,11 @@ def page_crawler(url: str) -> list:
             retries = retries - 1
             logging.warning(f'Failed to access {url}')
             logging.warning(f'Retries remaining: {retries}')
+    
+    for element in elements:
+        ZIP_URL_LIST.append(element.get_attribute('href'))
 
-    return elements
+    return ZIP_URL_LIST
 
 def main():
     page_crawler(MAIN_URL)
