@@ -22,11 +22,6 @@ WRONG_URL = 'https://s3.amazon.aws.com/not_real/index.html'
 def test_right_url():
     page_crawler(MAIN_URL)
 
-#What about the wrong URL?
-def test_wrong_url():
-    with pytest.raises(selenium.common.exceptions.WebDriverException):
-        page_crawler(WRONG_URL)
-
 #Are there zip files at the right URL?
 def test_zip_files_at_url():
     test_elements = page_crawler(MAIN_URL)

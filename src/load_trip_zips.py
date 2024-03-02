@@ -9,12 +9,20 @@ import requests
 import zipfile
 import csv
 import pandas as pd
-from get_trip_zips import page_crawler, MAIN_URL
+# from get_trip_zips import page_crawler, MAIN_URL
+import get_trip_zips
 
 RAW_LIST_OF_CSVS = []
 DIRTY_LIST_OF_CSVS = []
 CLEAN_LIST_OF_CSVS = []
 
+def main():
+
+    test = get_trip_zips.main()
+    print(test)
+
+    # zip_url_elements = page_crawler(MAIN_URL)
+    # loaded_data_frame = data_frame_loader(zip_url_elements)
 
 def data_frame_loader(zip_url_list:list) -> pd.DataFrame:
 
@@ -38,10 +46,6 @@ def data_frame_loader(zip_url_list:list) -> pd.DataFrame:
             CLEAN_LIST_OF_CSVS.append(dirty_element)
 
     return CLEAN_LIST_OF_CSVS
-
-def main():
-    zip_url_elements = page_crawler(MAIN_URL)
-    loaded_data_frame = data_frame_loader(zip_url_elements)
 
 if __name__=='__main__':
     main()
