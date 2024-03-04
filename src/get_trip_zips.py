@@ -30,7 +30,7 @@ def main():
 
     # 3. Extract URLs for zip files from href elements.
     zip_url_list = url_extractor(href_elements)
-
+    
 def page_navigator(url:str) -> webdriver:
 
     driver = webdriver.Chrome() 
