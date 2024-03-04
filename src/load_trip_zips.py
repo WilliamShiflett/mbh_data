@@ -10,7 +10,7 @@ import zipfile
 import csv
 import pandas as pd
 # from get_trip_zips import page_crawler, MAIN_URL
-import get_trip_zips
+import src.get_trip_zips as get_trip_zips
 
 RAW_LIST_OF_CSVS = []
 DIRTY_LIST_OF_CSVS = []
