@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 import unittest
 
@@ -21,7 +22,7 @@ from src.crawler import Crawler
 URL = "https://s3.amazonaws.com/capitalbikeshare-data/index.html"
 LINK_TEXT = ".zip"
 ATTRIBUTE = "//a[@href]"
-WAIT_TIME = 10
+WAIT_TIME = 2
 FILE_TYPE = ".zip"
 RETRY_COUNT = 3
 
@@ -29,7 +30,9 @@ class CrawlerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.crawler = Crawler(url=URL, 
-                               file_type=FILE_TYPE,)
+                               file_type=FILE_TYPE,
+                               wait_time=WAIT_TIME,
+                               attribute=ATTRIBUTE)
 
     def test_CrawlerExists(self):
         self.assertIsNotNone(self.crawler)
@@ -42,12 +45,15 @@ class CrawlerTestCase(unittest.TestCase):
 
     def test_CrawlerURLWebsiteOk(self):
         response = requests.get(self.crawler.url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_CrawlerURLWebsiteHasTemplate(self):
         response = requests.get(self.crawler.url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.text)
+
+    # TODO: Test that website actually has the elements in question
+    # TODO: Test that website actually has the attributes in question
 
     def test_CrawlerHasFileType(self):
         self.assertIsNotNone(self.crawler.file_type)
@@ -55,21 +61,22 @@ class CrawlerTestCase(unittest.TestCase):
     def test_CrawlerFileTypeIsString(self):
         self.assertIsInstance(self.crawler.file_type, str)
 
-    def test_CrawlerCanClick(self):
-        # create webdriver object
-        driver = webdriver.Chrome()
-        driver.get(self.crawler.url)
-        element = driver.find_element(By.LINK_TEXT, self.crawler.file_type)
-        self.assertIsNotNone(element)
-        # click the element
-        element.click()
+    def test_CrawlerHasWaitTime(self):
+        self.assertIsNotNone(self.crawler.wait_time)
 
-    # def test_CrawlerHasWaitTime(self):
-    #     self.assertIsNotNone(self.crawler.wait_time)
+    def test_CrawlerWaitTimeIsNonZeroIntegr(self):
+        self.assertIsInstance(self.crawler.wait_time, int)
+        self.assertGreater(self.crawler.wait_time, 0)
 
-    # def test_CrawlerWaitTimeIsNonZeroIntegr(self):
-    #     self.assertIsInstance(self.crawler.wait_time, int)
-    #     self.assertGreater(self.crawler.wait_time, 0)
+    def test_PatientCrawlerCanNavigateAndWait(self):
+        self.crawler.element_grabber()
+
+    def test_PatientCrawlerCanFindElements(self):
+        elements = self.crawler.element_grabber()
+        self.assertIsNotNone(elements)
+
+
+
 
 
     # def tearDown(self):
