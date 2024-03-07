@@ -19,11 +19,20 @@ class Crawler:
         self.attribute = attribute
 
     def element_grabber(self):
-
-        driver = webdriver.Chrome()
-        driver.get(self. url)
-        WebDriverWait(driver, self.wait_time).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, self.file_type ))).get_attribute('href')
         
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        driver = webdriver.Chrome(options=options)
+
+        # Navigate to URL...
+        driver.get(self. url)
+        # Wait for elements to be clickable...
+        WebDriverWait(driver, self.wait_time).until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, self.file_type ))).get_attribute('href')
+        # Gather elements in a list...
         self.elements = driver.find_elements(By.XPATH, self.attribute)
+        # Clean-up time.
+        driver.close()
+        driver.quit()
 
         return self.elements
+
