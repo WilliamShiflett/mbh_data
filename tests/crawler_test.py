@@ -14,7 +14,7 @@ import logging
 import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import InvalidArgumentException, NoSuchElementException, TimeoutException
 import unittest
 
 from src.crawler import Crawler
@@ -22,7 +22,7 @@ from src.crawler import Crawler
 # Set up log file. Remeber to add to .gitignore.
 
 logging.basicConfig(level=logging.DEBUG,
-                    filename="mbh_data_log.txt",
+                    filename="mbh_data_crawler_test_log.txt",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S')
@@ -30,11 +30,17 @@ logging.basicConfig(level=logging.DEBUG,
 # Globabl variables. Do not change.
 
 URL = "https://s3.amazonaws.com/capitalbikeshare-data/index.html"
-LINK_TEXT = ".zip"
 ATTRIBUTE = "//a[@href]"
 WAIT_TIME = 2
 FILE_TYPE = ".zip"
 RETRY_COUNT = 3
+
+WRONG_URL = "www.google.com"
+# WRONG_LINK_TEXT = 
+# WRONG_ATTRIBUTE = 
+# WRONG_WAIT_TIME = 
+# WRONG_FILE_TYPE = 
+# WRONG_RETRY_COUNT = 
 
 class DriverTestCase(unittest.TestCase):
 
@@ -44,7 +50,7 @@ class DriverTestCase(unittest.TestCase):
         self.test_webdriver = webdriver.Chrome(options=options)
         self.test_url = URL
 
-    def test_HaveChromeBroswer(self):
+    def test_HaveChromeBrowser(self):
         # Do we have the Chrome browser?
         self.assertEqual(self.test_webdriver.current_url,"data:,")
 
@@ -57,7 +63,7 @@ class DriverTestCase(unittest.TestCase):
         self.test_webdriver.close()
         self.test_webdriver.quit()
 
-class CrawlerTestCase(unittest.TestCase):
+class CrawlerExpectedTestCase(unittest.TestCase):
 
     def setUp(self):
         self.crawler = Crawler(url=URL, 
@@ -96,25 +102,24 @@ class CrawlerTestCase(unittest.TestCase):
         self.assertIsInstance(self.crawler.wait_time, int)
         self.assertGreater(self.crawler.wait_time, 0)
 
-    def test_PatientCrawlerCanNavigateAndWait(self):
+    def test_CrawlerCanNavigateAndWait(self):
         self.crawler.element_grabber()
 
-    def test_PatientCrawlerCanFindElements(self):
+    def test_CrawlerCanFindElements(self):
         elements = self.crawler.element_grabber()
         self.assertIsNotNone(elements)
 
-    # def tearDown(self):
-    #     self.crawler.something()
+class CrawlerUnexpectedTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.crawler = Crawler(url=WRONG_URL, 
+                               file_type=FILE_TYPE,
+                               wait_time=WAIT_TIME,
+                               attribute=ATTRIBUTE)
+        
+    def test_NoURL(self):
+        with self.assertRaises(TimeoutException):
+            self.crawler.element_grabber()
 
 if __name__ == "__main__":
     unittest.main()
-
-# For example you have a test that requires items to exist, 
-# or certain state - so you put these actions
-# (creating object instances, initializing db, preparing rules and so on) 
-#into the setUp.
-
-# Also as you know each test should stop in the place where 
-# it was started - this means that we have to restore app state
-# to it's initial state - 
-# e.g close files, connections, removing newly created items, calling transactions callback and so on - all these steps are to be included into the tearDown.

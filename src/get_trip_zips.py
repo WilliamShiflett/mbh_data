@@ -5,11 +5,13 @@
 
 Get zip file URLs for each quarter's worth of trip data.
 '''
+
 import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import InvalidArgumentException, NoSuchElementException, TimeoutException
 import sys
 import time
 
@@ -17,13 +19,15 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 MAIN_URL = 'https://s3.amazonaws.com/capitalbikeshare-data/index.html'
 ELEMENT_TYPE = "//a[@href]"
-RETRY_COUNT = 5
+WAIT_TIME = 2
+FILE_TYPE = ".zip"
+RETRY_COUNT = 3
 ZIP_URL_LIST = []
 
 def main():
     
     # 1. Navigate to: https://s3.amazonaws.com/capitalbikeshare-data/index.html.
-    driver = page_navigator(MAIN_URL)
+    driver = page_navigator(MAIN_URL, WAIT_TIME)
 
     # 2. Capture href elements in a list after they render.
     href_elements = element_grabber(driver, ELEMENT_TYPE)
@@ -31,17 +35,37 @@ def main():
     # 3. Extract URLs for zip files from href elements.
     zip_url_list = url_extractor(href_elements)
     
-def page_navigator(url:str) -> webdriver:
-
-    driver = webdriver.Chrome() 
-    driver.set_page_load_timeout(10)
-    driver.get(url)
-
-    assert driver.current_url == 'https://s3.amazonaws.com/capitalbikeshare-data/index.html'
+def page_navigator(url:str, wait_time:int) -> webdriver:
     
-    logging.info(f'Successfully navigated to {driver.current_url}')
+    options = webdriver.ChromeOptions()
+    options.add_argument('headless')
 
-    return driver
+    driver = webdriver.Chrome(options=options) 
+    driver.set_page_load_timeout(wait_time)
+
+    try:
+        driver.get(url)
+
+        assert driver.current_url == 'https://s3.amazonaws.com/capitalbikeshare-data/index.html'
+        logging.info(f'Successfully navigated to {driver.current_url}')
+
+        return driver
+
+    except InvalidArgumentException as ia:
+        
+        logging.info(ia)
+        logging.info(f'Could not navigate to {driver.current_url}')
+        raise InvalidArgumentException(f'{driver.current_url} is not a valid URL')
+        
+    except TimeoutException as te:
+
+        logging.info(te)    
+        logging.info(f'Could navigate to {driver.current_url}, but timed out')
+        raise TimeoutException(f'Wait time {wait_time} seconds is not enough to load page')
+        
+
+
+
 
 def element_grabber(cbs_driver:webdriver, 
                     element_type:str) -> list:
